@@ -18,6 +18,10 @@ import { Route as JoueurIdRouteImport } from './routes/joueur.$id'
 import { Route as MatchIdRouteImport } from './routes/match.$id'
 import { Route as TournoiIdRouteImport } from './routes/tournoi.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
+import { Route as AuthenticatedAdminEquipesIdRouteImport } from './routes/_authenticated/admin.equipes.$id'
+import { Route as AuthenticatedAdminLiveIdRouteImport } from './routes/_authenticated/admin.live.$id'
+import { Route as AuthenticatedAdminMatchsIdRouteImport } from './routes/_authenticated/admin.matchs.$id'
 import { Route as AuthenticatedAdminTournoisIdRouteImport } from './routes/_authenticated/admin.tournois.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -64,6 +68,30 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminUtilisateursRoute =
+  AuthenticatedAdminUtilisateursRouteImport.update({
+    id: '/admin/utilisateurs',
+    path: '/admin/utilisateurs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminEquipesIdRoute =
+  AuthenticatedAdminEquipesIdRouteImport.update({
+    id: '/admin/equipes/$id',
+    path: '/admin/equipes/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminLiveIdRoute =
+  AuthenticatedAdminLiveIdRouteImport.update({
+    id: '/admin/live/$id',
+    path: '/admin/live/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminMatchsIdRoute =
+  AuthenticatedAdminMatchsIdRouteImport.update({
+    id: '/admin/matchs/$id',
+    path: '/admin/matchs/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminTournoisIdRoute =
   AuthenticatedAdminTournoisIdRouteImport.update({
     id: '/admin/tournois/$id',
@@ -79,7 +107,11 @@ export interface FileRoutesByFullPath {
   '/joueur/$id': typeof JoueurIdRoute
   '/match/$id': typeof MatchIdRoute
   '/tournoi/$id': typeof TournoiIdRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/equipes/$id': typeof AuthenticatedAdminEquipesIdRoute
+  '/admin/live/$id': typeof AuthenticatedAdminLiveIdRoute
+  '/admin/matchs/$id': typeof AuthenticatedAdminMatchsIdRoute
   '/admin/tournois/$id': typeof AuthenticatedAdminTournoisIdRoute
 }
 export interface FileRoutesByTo {
@@ -90,7 +122,11 @@ export interface FileRoutesByTo {
   '/joueur/$id': typeof JoueurIdRoute
   '/match/$id': typeof MatchIdRoute
   '/tournoi/$id': typeof TournoiIdRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/equipes/$id': typeof AuthenticatedAdminEquipesIdRoute
+  '/admin/live/$id': typeof AuthenticatedAdminLiveIdRoute
+  '/admin/matchs/$id': typeof AuthenticatedAdminMatchsIdRoute
   '/admin/tournois/$id': typeof AuthenticatedAdminTournoisIdRoute
 }
 export interface FileRoutesById {
@@ -103,7 +139,11 @@ export interface FileRoutesById {
   '/joueur/$id': typeof JoueurIdRoute
   '/match/$id': typeof MatchIdRoute
   '/tournoi/$id': typeof TournoiIdRoute
+  '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/equipes/$id': typeof AuthenticatedAdminEquipesIdRoute
+  '/_authenticated/admin/live/$id': typeof AuthenticatedAdminLiveIdRoute
+  '/_authenticated/admin/matchs/$id': typeof AuthenticatedAdminMatchsIdRoute
   '/_authenticated/admin/tournois/$id': typeof AuthenticatedAdminTournoisIdRoute
 }
 export interface FileRouteTypes {
@@ -116,7 +156,11 @@ export interface FileRouteTypes {
     | '/joueur/$id'
     | '/match/$id'
     | '/tournoi/$id'
+    | '/admin/utilisateurs'
     | '/admin/'
+    | '/admin/equipes/$id'
+    | '/admin/live/$id'
+    | '/admin/matchs/$id'
     | '/admin/tournois/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -127,7 +171,11 @@ export interface FileRouteTypes {
     | '/joueur/$id'
     | '/match/$id'
     | '/tournoi/$id'
+    | '/admin/utilisateurs'
     | '/admin'
+    | '/admin/equipes/$id'
+    | '/admin/live/$id'
+    | '/admin/matchs/$id'
     | '/admin/tournois/$id'
   id:
     | '__root__'
@@ -139,7 +187,11 @@ export interface FileRouteTypes {
     | '/joueur/$id'
     | '/match/$id'
     | '/tournoi/$id'
+    | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/equipes/$id'
+    | '/_authenticated/admin/live/$id'
+    | '/_authenticated/admin/matchs/$id'
     | '/_authenticated/admin/tournois/$id'
   fileRoutesById: FileRoutesById
 }
@@ -219,6 +271,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/utilisateurs': {
+      id: '/_authenticated/admin/utilisateurs'
+      path: '/admin/utilisateurs'
+      fullPath: '/admin/utilisateurs'
+      preLoaderRoute: typeof AuthenticatedAdminUtilisateursRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/equipes/$id': {
+      id: '/_authenticated/admin/equipes/$id'
+      path: '/admin/equipes/$id'
+      fullPath: '/admin/equipes/$id'
+      preLoaderRoute: typeof AuthenticatedAdminEquipesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/live/$id': {
+      id: '/_authenticated/admin/live/$id'
+      path: '/admin/live/$id'
+      fullPath: '/admin/live/$id'
+      preLoaderRoute: typeof AuthenticatedAdminLiveIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/matchs/$id': {
+      id: '/_authenticated/admin/matchs/$id'
+      path: '/admin/matchs/$id'
+      fullPath: '/admin/matchs/$id'
+      preLoaderRoute: typeof AuthenticatedAdminMatchsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/tournois/$id': {
       id: '/_authenticated/admin/tournois/$id'
       path: '/admin/tournois/$id'
@@ -230,12 +310,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminEquipesIdRoute: typeof AuthenticatedAdminEquipesIdRoute
+  AuthenticatedAdminLiveIdRoute: typeof AuthenticatedAdminLiveIdRoute
+  AuthenticatedAdminMatchsIdRoute: typeof AuthenticatedAdminMatchsIdRoute
   AuthenticatedAdminTournoisIdRoute: typeof AuthenticatedAdminTournoisIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminEquipesIdRoute: AuthenticatedAdminEquipesIdRoute,
+  AuthenticatedAdminLiveIdRoute: AuthenticatedAdminLiveIdRoute,
+  AuthenticatedAdminMatchsIdRoute: AuthenticatedAdminMatchsIdRoute,
   AuthenticatedAdminTournoisIdRoute: AuthenticatedAdminTournoisIdRoute,
 }
 

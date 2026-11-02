@@ -18,6 +18,7 @@ import { Route as JoueurIdRouteImport } from './routes/joueur.$id'
 import { Route as MatchIdRouteImport } from './routes/match.$id'
 import { Route as TournoiIdRouteImport } from './routes/tournoi.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminTournoisIdRouteImport } from './routes/_authenticated/admin.tournois.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -63,6 +64,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminTournoisIdRoute =
+  AuthenticatedAdminTournoisIdRouteImport.update({
+    id: '/admin/tournois/$id',
+    path: '/admin/tournois/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/match/$id': typeof MatchIdRoute
   '/tournoi/$id': typeof TournoiIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/tournois/$id': typeof AuthenticatedAdminTournoisIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +91,7 @@ export interface FileRoutesByTo {
   '/match/$id': typeof MatchIdRoute
   '/tournoi/$id': typeof TournoiIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/tournois/$id': typeof AuthenticatedAdminTournoisIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +104,7 @@ export interface FileRoutesById {
   '/match/$id': typeof MatchIdRoute
   '/tournoi/$id': typeof TournoiIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/tournois/$id': typeof AuthenticatedAdminTournoisIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/match/$id'
     | '/tournoi/$id'
     | '/admin/'
+    | '/admin/tournois/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/match/$id'
     | '/tournoi/$id'
     | '/admin'
+    | '/admin/tournois/$id'
   id:
     | '__root__'
     | '/'
@@ -128,6 +140,7 @@ export interface FileRouteTypes {
     | '/match/$id'
     | '/tournoi/$id'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/tournois/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -206,15 +219,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/tournois/$id': {
+      id: '/_authenticated/admin/tournois/$id'
+      path: '/admin/tournois/$id'
+      fullPath: '/admin/tournois/$id'
+      preLoaderRoute: typeof AuthenticatedAdminTournoisIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminTournoisIdRoute: typeof AuthenticatedAdminTournoisIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminTournoisIdRoute: AuthenticatedAdminTournoisIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

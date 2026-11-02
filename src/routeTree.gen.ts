@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TournoisRouteImport } from './routes/tournois'
+import { Route as TournoiIdRouteImport } from './routes/tournoi.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const TournoisRoute = TournoisRouteImport.update({
   path: '/tournois',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TournoiIdRoute = TournoiIdRouteImport.update({
+  id: '/tournoi/$id',
+  path: '/tournoi/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/tournois': typeof TournoisRoute
+  '/tournoi/$id': typeof TournoiIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/tournois': typeof TournoisRoute
+  '/tournoi/$id': typeof TournoiIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/tournois': typeof TournoisRoute
+  '/tournoi/$id': typeof TournoiIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/tournois'
+  fullPaths: '/' | '/tournois' | '/tournoi/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/tournois'
-  id: '__root__' | '/' | '/tournois'
+  to: '/' | '/tournois' | '/tournoi/$id'
+  id: '__root__' | '/' | '/tournois' | '/tournoi/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TournoisRoute: typeof TournoisRoute
+  TournoiIdRoute: typeof TournoiIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TournoisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tournoi/$id': {
+      id: '/tournoi/$id'
+      path: '/tournoi/$id'
+      fullPath: '/tournoi/$id'
+      preLoaderRoute: typeof TournoiIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TournoisRoute: TournoisRoute,
+  TournoiIdRoute: TournoiIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

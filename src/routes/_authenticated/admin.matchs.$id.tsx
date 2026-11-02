@@ -57,7 +57,7 @@ function AdminMatch() {
 
   async function save() {
     const list = (players.data ?? []).filter((p) => rows[p.id]?.status !== "absent").map((p) => ({
-      match_id: id, player_id: p.id, team_id: p.team_id, status: rows[p.id].status as "titulaire", position: rows[p.id].position || null, is_captain: rows[p.id].captain,
+      match_id: id, player_id: p.id, team_id: p.team_id, status: rows[p.id]!.status as "titulaire", position: rows[p.id]!.position || null, is_captain: rows[p.id]!.captain,
     }));
     const d = await supabase.from("lineups").delete().eq("match_id", id);
     if (d.error) return toast.error(errMsg(d.error));
@@ -102,8 +102,8 @@ function AdminMatch() {
             if (!r) return null;
             const set = (patch: Partial<Row>) => setRows((s) => {
               const n = { ...s };
-              if (patch.captain) for (const k of Object.keys(n)) if ((players.data ?? []).find((x) => x.id === k)?.team_id === team.id) n[k] = { ...n[k], captain: false };
-              n[p.id] = { ...n[p.id], ...patch };
+              if (patch.captain) for (const k of Object.keys(n)) if ((players.data ?? []).find((x) => x.id === k)?.team_id === team.id) n[k] = { ...n[k]!, captain: false };
+              n[p.id] = { ...n[p.id]!, ...patch } as Row;
               return n;
             });
             return (

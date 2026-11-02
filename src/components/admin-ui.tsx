@@ -22,7 +22,7 @@ export function AdminGate({ children, allowScorer }: { children: ReactNode; allo
 
 export function BackLink({ to, params, children }: { to: string; params?: Record<string, string>; children: ReactNode }) {
   return (
-    <Link to={to} params={params} className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground">
+    <Link {...({ to, params } as any)} className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground">
       <ArrowLeft className="h-4 w-4" /> {children}
     </Link>
   );

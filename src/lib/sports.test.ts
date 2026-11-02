@@ -20,7 +20,7 @@ describe("classement", () => {
   });
   it("ignore les matchs non terminés", () => {
     const m = { ...match("A", "B", 1, 0), status: "en_cours" } as Match;
-    expect(computeStandings("football", [team("A"), team("B")], [m])[0].played).toBe(0);
+    expect(computeStandings("football", [team("A"), team("B")], [m])[0]!.played).toBe(0);
   });
 });
 

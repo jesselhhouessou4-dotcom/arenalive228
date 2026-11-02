@@ -3,9 +3,9 @@ import { queryOptions, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Match, Team, Tables } from "./sports";
 
-function unwrap<T>(res: { data: T | null; error: { message: string } | null }): T {
+function unwrap<R extends { data: unknown; error: { message: string } | null }>(res: R): NonNullable<R["data"]> {
   if (res.error) throw new Error(res.error.message);
-  return res.data as T;
+  return res.data as NonNullable<R["data"]>;
 }
 
 export type MatchWithTeams = Match & {

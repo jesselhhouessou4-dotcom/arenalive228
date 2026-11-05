@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { queryOptions, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Match, Team, Tables } from "./sports";
+import { getPublicMatch } from "./match.functions";
 
 function unwrap<R extends { data: unknown; error: { message: string } | null }>(res: R): NonNullable<R["data"]> {
   if (res.error) throw new Error(res.error.message);
@@ -78,7 +79,8 @@ export const matchesQuery = (filter: { tournamentId?: string; teamId?: string; s
 export const matchQuery = (id: string) =>
   queryOptions({
     queryKey: ["match", id],
-    queryFn: async () => unwrap(await supabase.from("matches").select(MATCH_SELECT).eq("id", id).single()) as unknown as MatchWithTeams,
+    queryFn: async () => await getPublicMatch({ data: { id } }) as MatchWithTeams | null,
+    retry: false,
   });
 
 export const matchEventsQuery = (id: string) =>

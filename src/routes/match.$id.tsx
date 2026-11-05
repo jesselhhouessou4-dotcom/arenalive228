@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
+import { useQuery, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { lineupsQuery, matchEventsQuery, matchPlayersQuery, matchQuery, useRealtime } from "@/lib/queries";
 import { ErrorBox, LoadingList } from "@/components/common";
@@ -8,20 +8,39 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Player } from "@/lib/sports";
 
 export const Route = createFileRoute("/match/$id")({
-  head: () => ({
+  loader: async ({ context, params }) => {
+    const match = await context.queryClient.ensureQueryData(matchQuery(params.id));
+    if (!match) throw notFound();
+    return { name: `${match.team_a.name} – ${match.team_b.name}`, tournament: match.tournament.name };
+  },
+  pendingComponent: () => <LoadingList rows={2} />,
+  errorComponent: MatchLoadError,
+  notFoundComponent: () => <p className="py-6 text-center text-muted-foreground">Match introuvable.</p>,
+  head: ({ loaderData }) => ({
     meta: [
-      { title: "Match en direct — score et événements" },
-      { name: "description", content: "Score, chrono, fil des événements et compositions en temps réel." },
-      { property: "og:title", content: "Match en direct" },
-      { property: "og:description", content: "Score et fil des événements en temps réel." },
+      { title: `${loaderData?.name ?? "Match en direct"} — ArenaLive` },
+      { name: "description", content: `Score et événements du match · ${loaderData?.tournament ?? "ArenaLive"}.` },
+      { property: "og:title", content: `${loaderData?.name ?? "Match en direct"} — ArenaLive` },
+      { property: "og:description", content: `Score et événements du match · ${loaderData?.tournament ?? "ArenaLive"}.` },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: MatchPage,
 });
 
+function MatchLoadError({ error }: { error: Error }) {
+  const router = useRouter();
+  const qc = useQueryClient();
+  return <ErrorBox error={error} onRetry={() => {
+    qc.resetQueries({ queryKey: ["match"] });
+    void router.invalidate();
+  }} />;
+}
+
 function MatchPage() {
   const { id } = Route.useParams();
-  const match = useQuery(matchQuery(id));
+  const match = useSuspenseQuery(matchQuery(id));
   const events = useQuery(matchEventsQuery(id));
   const lineups = useQuery(lineupsQuery(id));
   const players = useQuery({
@@ -34,9 +53,8 @@ function MatchPage() {
 
   const playerMap = useMemo(() => new Map<string, Player>((players.data ?? []).map((p) => [p.id, p])), [players.data]);
 
-  if (match.isLoading) return <LoadingList rows={2} />;
-  if (match.error) return <ErrorBox error={match.error} onRetry={() => match.refetch()} />;
-  const m = match.data!;
+  const m = match.data;
+  if (!m) return <p className="py-6 text-center text-muted-foreground">Match introuvable.</p>;
   const ev = events.data ?? [];
   const lu = (lineups.data ?? []) as Parameters<typeof LineupBoard>[0]["lineups"];
 
@@ -53,7 +71,7 @@ function MatchPage() {
           {events.error ? <ErrorBox error={events.error} /> : events.isLoading ? <LoadingList /> : <EventFeed match={m} events={ev} players={playerMap} />}
         </TabsContent>
         <TabsContent value="compos" className="mt-4 space-y-8">
-          {lineups.isLoading ? (
+          {lineups.error ? <ErrorBox error={lineups.error} onRetry={() => lineups.refetch()} /> : lineups.isLoading ? (
             <LoadingList rows={2} />
           ) : (
             <>

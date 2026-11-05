@@ -29,7 +29,7 @@ export const Route = createFileRoute("/match/$id")({
   component: MatchPage,
 });
 
-function MatchLoadError({ error }: { error: Error }) {
+function MatchLoadError({ error }: { error: unknown }) {
   const router = useRouter();
   const qc = useQueryClient();
   return <ErrorBox error={error} onRetry={() => {

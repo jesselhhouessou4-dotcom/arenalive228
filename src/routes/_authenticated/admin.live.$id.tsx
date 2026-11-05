@@ -55,6 +55,7 @@ function Live() {
   };
 
   async function add(type: EventType, extra: Partial<MatchEvent> = {}) {
+    if (!m) return;
     setBusy(true);
     const { error } = await supabase.from("match_events").insert({
       match_id: id,
@@ -79,7 +80,7 @@ function Live() {
   function pick(pid: string) {
     if (!pending) return;
     if (pending.type === "remplacement" && !pending.out) return setPending({ ...pending, out: pid });
-    const extra = pending.type === "remplacement" ? { player_id: pending.out, related_player_id: pid } : { player_id: pid };
+    const extra = pending.type === "remplacement" ? { player_id: pending.out ?? null, related_player_id: pid } : { player_id: pid };
     const t = pending.type;
     setPending(null);
     add(t, extra);

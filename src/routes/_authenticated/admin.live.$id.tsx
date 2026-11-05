@@ -40,7 +40,8 @@ function Live() {
 
   if (match.isLoading) return <LoadingList />;
   if (match.error) return <ErrorBox error={match.error} />;
-  const m = match.data!;
+  const m = match.data;
+  if (!m) return <ErrorBox error={new Error("Match introuvable.")} />;
   const sport = m.tournament.sport_id;
   const ev = events.data ?? [];
   const teamId = team === "a" ? m.team_a_id : m.team_b_id;
@@ -54,6 +55,7 @@ function Live() {
   };
 
   async function add(type: EventType, extra: Partial<MatchEvent> = {}) {
+    if (!m) return;
     setBusy(true);
     const { error } = await supabase.from("match_events").insert({
       match_id: id,
@@ -78,7 +80,7 @@ function Live() {
   function pick(pid: string) {
     if (!pending) return;
     if (pending.type === "remplacement" && !pending.out) return setPending({ ...pending, out: pid });
-    const extra = pending.type === "remplacement" ? { player_id: pending.out!, related_player_id: pid } : { player_id: pid };
+    const extra = pending.type === "remplacement" ? { player_id: pending.out ?? null, related_player_id: pid } : { player_id: pid };
     const t = pending.type;
     setPending(null);
     add(t, extra);

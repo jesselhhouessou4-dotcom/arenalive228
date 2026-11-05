@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Public match reads use a bounded, publishable-key server function and a route loader; this makes direct links render without relying on browser-only fetching.
+- Keep SSR Query cache integration in the router with provider wrapping disabled, because the root already owns the QueryClientProvider.

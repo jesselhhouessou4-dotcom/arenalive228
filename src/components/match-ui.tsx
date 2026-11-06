@@ -5,6 +5,7 @@ import { EVENT_META, CONTROL_EVENTS, footballLine, periodLabel, type Lineup, typ
 import type { MatchWithTeams } from "@/lib/queries";
 import { LiveClock, LiveDot, PlayerAvatar, TeamBadge, formatDate } from "@/components/common";
 import { playerPosition } from "@/lib/positions";
+import { LineupTerrain } from "@/components/LineupTerrain";
 
 export function Scoreboard({ match }: { match: MatchWithTeams }) {
   const sport = match.tournament.sport_id;
@@ -207,26 +208,13 @@ export function LineupBoard({
         <TeamBadge team={team} size={28} />
         <h3 className="font-display text-lg font-bold uppercase">{team.name}</h3>
       </div>
-      <div
-        className={cn(
-          "relative overflow-hidden rounded-2xl border p-4",
-          sport === "football" ? "bg-[repeating-linear-gradient(0deg,var(--pitch)_0_40px,var(--pitch-2)_40px_80px)]" : "bg-[linear-gradient(180deg,var(--court),var(--court-2))]",
-        )}
-      >
-        {/* marquages du terrain */}
-        <div className="pointer-events-none absolute inset-3 rounded-lg border-2 border-foreground/25" />
-        <div className="pointer-events-none absolute left-1/2 top-3 h-14 w-36 -translate-x-1/2 border-2 border-t-0 border-foreground/25" />
-        <div className="pointer-events-none absolute bottom-3 left-1/2 h-14 w-36 -translate-x-1/2 border-2 border-b-0 border-foreground/25" />
-        <div className="relative flex min-h-80 flex-col justify-around gap-4 py-2">
-          {rows.map((r, i) => (
-            <div key={i} className="flex justify-around">
-              {r.map((l) => (
-                <PlayerChip key={l.id} l={l} cards={cardsFor(l.player_id)} sport={sport} />
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
+      <LineupTerrain sport={sport} storageKey={`lineup-terrain:${mine[0]?.match_id}:${team.id}:${sport}:${Boolean(mirrored)}`}
+        players={rows.flatMap((row, i) => row.map((l, j) => ({
+          id: l.id,
+          name: l.player.name,
+          position: { x: 10 + ((j + 0.5) / row.length) * 80, y: 14 + ((i + 0.5) / rows.length) * 72 },
+          chip: <PlayerChip l={l} cards={cardsFor(l.player_id)} sport={sport} />,
+        })))} />
       {bench.length > 0 && (
         <div className="rounded-2xl border bg-card p-3">
           <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">Banc des remplaçants</p>

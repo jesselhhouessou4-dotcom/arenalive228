@@ -14,7 +14,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/live/$id")({
-  head: () => ({ meta: [{ title: "Saisie en direct" }, { name: "description", content: "Console de saisie des événements du match." }] }),
+  head: () => ({ meta: [
+    { title: "Saisie en direct — ArenaLive" },
+    { name: "description", content: "Console de saisie des événements du match sur ArenaLive." },
+    { property: "og:title", content: "Saisie en direct — ArenaLive" },
+    { property: "og:description", content: "Console de saisie des événements du match sur ArenaLive." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: () => (
     <AdminGate allowScorer>
       <Live />

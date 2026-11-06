@@ -12,7 +12,7 @@ describe("PositionSelect", () => {
     expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
       "Sans poste", "Meneur", "Arrière", "Ailier", "Ailier fort", "Pivot",
     ]);
-    fireEvent.click(screen.getByRole("option", { name: "Pivot", exact: true }));
+    fireEvent.click(screen.getByRole("option", { name: /^Pivot$/ }));
     expect(change).toHaveBeenCalledWith("Pivot");
   });
   it("does not replace a legacy value when the selector is opened", () => {
@@ -20,7 +20,7 @@ describe("PositionSelect", () => {
     render(<PositionSelect sport="football" value="GB" onChange={change} label="Poste du joueur" />);
     fireEvent.keyDown(screen.getByRole("combobox"), { key: "ArrowDown" });
     expect(change).not.toHaveBeenCalled();
-    expect(screen.queryByRole("option", { name: "GB", exact: true })).toBeNull();
+    expect(screen.queryByRole("option", { name: /^GB$/ })).toBeNull();
     expect(screen.getAllByRole("option")).toHaveLength(11);
   });
 });

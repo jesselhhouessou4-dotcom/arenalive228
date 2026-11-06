@@ -32,7 +32,10 @@ export const Route = createFileRoute("/match/$id")({
 function MatchLoadError({ error }: { error: unknown }) {
   const router = useRouter();
   const qc = useQueryClient();
-  return <ErrorBox error={error} onRetry={() => {
+  const message = error instanceof Error && error.message !== "Failed to fetch"
+    ? error.message
+    : "La connexion a été interrompue. Veuillez réessayer.";
+  return <ErrorBox error={new Error(message)} onRetry={() => {
     qc.resetQueries({ queryKey: ["match"] });
     void router.invalidate();
   }} />;

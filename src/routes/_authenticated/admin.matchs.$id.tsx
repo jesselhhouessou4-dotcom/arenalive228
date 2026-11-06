@@ -9,7 +9,7 @@ import { AdminGate, BackLink, errMsg } from "@/components/admin-ui";
 import { ErrorBox, LoadingList, Section, TeamBadge } from "@/components/common";
 import { Scoreboard } from "@/components/match-ui";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PositionSelect } from "@/components/PositionSelect";
 
 export const Route = createFileRoute("/_authenticated/admin/matchs/$id")({
   head: () => ({ meta: [{ title: "Admin — match" }, { name: "description", content: "Composition et marqueur du match." }] }),
@@ -115,7 +115,7 @@ function AdminMatch() {
                     <button key={v} type="button" onClick={() => set({ status: v })} className={`rounded-md px-2 py-1 text-xs font-semibold ${r.status === v ? "bg-primary text-primary-foreground" : ""}`}>{l}</button>
                   ))}
                 </div>
-                <Input className="h-8 w-20" value={r.position} onChange={(e) => set({ position: e.target.value })} placeholder="Poste" />
+                <PositionSelect sport={m.tournament.sport_id} value={r.position} onChange={(position) => set({ position })} label={`Poste de ${p.name}`} className="h-8 w-44 max-w-full" />
                 <button type="button" onClick={() => set({ captain: !r.captain })} className={`h-8 w-8 rounded-full font-display font-extrabold ${r.captain ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground"}`} title="Capitaine">C</button>
               </div>
             );

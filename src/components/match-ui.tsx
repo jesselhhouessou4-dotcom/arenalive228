@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { EVENT_META, CONTROL_EVENTS, footballLine, periodLabel, type Lineup, type MatchEvent, type Player, type Team } from "@/lib/sports";
 import type { MatchWithTeams } from "@/lib/queries";
 import { LiveClock, LiveDot, PlayerAvatar, TeamBadge, formatDate } from "@/components/common";
+import { playerPosition } from "@/lib/positions";
 
 export function Scoreboard({ match }: { match: MatchWithTeams }) {
   const sport = match.tournament.sport_id;
@@ -160,7 +161,9 @@ function PlayerChip({ l, cards, sport, compact }: { l: LineupRow; cards: { yello
         )}
       </div>
       <span className="w-full truncate text-[11px] font-semibold leading-tight text-foreground drop-shadow">{l.player.name.split(" ").slice(-1)[0]}</span>
-      {!compact && <span className="text-[10px] uppercase leading-none text-foreground/70">{l.position ?? l.player.position}</span>}
+      {!compact && playerPosition(l.position, l.player.position) && (
+        <span className="w-full break-words text-[10px] leading-tight text-foreground/70">{playerPosition(l.position, l.player.position)}</span>
+      )}
       {sport === "basketball" && null}
     </Link>
   );
@@ -192,7 +195,7 @@ export function LineupBoard({
 
   let rows: LineupRow[][];
   if (sport === "football") {
-    rows = [0, 1, 2, 3].map((line) => starters.filter((l) => footballLine(l.position ?? l.player.position) === line)).filter((r) => r.length);
+    rows = [0, 1, 2, 3].map((line) => starters.filter((l) => footballLine(playerPosition(l.position, l.player.position)) === line)).filter((r) => r.length);
     if (mirrored) rows = rows.reverse();
   } else {
     rows = [starters.slice(0, 2), starters.slice(2, 5), starters.slice(5)].filter((r) => r.length);

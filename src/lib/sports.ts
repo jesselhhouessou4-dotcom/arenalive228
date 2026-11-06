@@ -1,4 +1,5 @@
 import type { Database } from "@/integrations/supabase/types";
+import { POSITIONS_BY_SPORT } from "./positions";
 
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"];
@@ -183,6 +184,8 @@ export const FORMAT_LABEL: Record<string, string> = {
 export const KNOCKOUT_ORDER = ["Huitième de finale", "Quart de finale", "Demi-finale", "Petite finale", "Finale"];
 
 export function footballLine(position: string | null): number {
+  const index = POSITIONS_BY_SPORT.football.findIndex((p) => p === position);
+  if (index >= 0) return index === 0 ? 0 : index <= 3 ? 1 : index <= 6 ? 2 : 3;
   const p = (position ?? "").toUpperCase();
   if (p.startsWith("GB") || p.includes("GARD")) return 0;
   if (p.startsWith("DEF") || p.includes("DÉF")) return 1;

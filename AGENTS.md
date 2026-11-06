@@ -11,3 +11,4 @@
 
 - Public match reads use a bounded, publishable-key server function and a route loader; this makes direct links render without relying on browser-only fetching.
 - Keep SSR Query cache integration in the router with provider wrapping disabled, because the root already owns the QueryClientProvider.
+- Keep sport position choices in POSITIONS_BY_SPORT and reuse PositionSelect for editing; preserve legacy strings and nullable positions without rewriting stored data.

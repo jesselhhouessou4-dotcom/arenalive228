@@ -10,6 +10,7 @@ import { ErrorBox, LoadingList, PlayerAvatar, Section, Spinner, TeamBadge } from
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Player } from "@/lib/sports";
+import { PositionSelect } from "@/components/PositionSelect";
 
 export const Route = createFileRoute("/_authenticated/admin/equipes/$id")({
   head: () => ({ meta: [{ title: "Admin — équipe" }, { name: "description", content: "Gestion de l'effectif." }] }),
@@ -54,20 +55,20 @@ function AdminTeam() {
         <h1 className="flex-1 font-display text-3xl font-extrabold uppercase">{t.name}</h1>
         <Button variant="ghost" size="icon" onClick={delTeam} aria-label="Supprimer l'équipe"><Trash2 className="h-4 w-4 text-destructive" /></Button>
       </div>
-      <form onSubmit={addPlayer} className="grid grid-cols-[1fr_70px_90px_auto] gap-2">
+      <form onSubmit={addPlayer} className="grid grid-cols-[minmax(0,1fr)_70px] gap-2 sm:grid-cols-[minmax(0,1fr)_70px_170px_auto]">
         <Input required placeholder="Nom du joueur" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <Input type="number" placeholder="N°" value={f.jersey_number} onChange={(e) => setF({ ...f, jersey_number: e.target.value })} />
-        <Input placeholder="Poste" value={f.position} onChange={(e) => setF({ ...f, position: e.target.value })} />
+        <PositionSelect sport={t.tournament?.sport_id ?? ""} value={f.position} onChange={(position) => setF({ ...f, position })} label="Poste du nouveau joueur" />
         <Button type="submit">Ajouter</Button>
       </form>
       <Section title={`Effectif (${players.data?.length ?? 0})`}>
-        {players.isLoading ? <LoadingList rows={2} /> : (players.data ?? []).map((p) => <PlayerRow key={p.id} p={p} onChange={reload} />)}
+        {players.isLoading ? <LoadingList rows={2} /> : (players.data ?? []).map((p) => <PlayerRow key={p.id} p={p} sport={t.tournament?.sport_id ?? ""} onChange={reload} />)}
       </Section>
     </div>
   );
 }
 
-function PlayerRow({ p, onChange }: { p: Player; onChange: () => void }) {
+function PlayerRow({ p, sport, onChange }: { p: Player; sport: string; onChange: () => void }) {
   const [busy, setBusy] = useState(false);
   async function upd(patch: Partial<Player>) {
     const { error } = await supabase.from("players").update(patch).eq("id", p.id);
@@ -95,7 +96,7 @@ function PlayerRow({ p, onChange }: { p: Player; onChange: () => void }) {
       </label>
       <Input className="w-14" type="number" defaultValue={p.jersey_number ?? ""} onBlur={(e) => upd({ jersey_number: e.target.value ? Number(e.target.value) : null })} />
       <Input defaultValue={p.name} onBlur={(e) => e.target.value !== p.name && upd({ name: e.target.value })} />
-      <Input className="w-24" defaultValue={p.position ?? ""} onBlur={(e) => upd({ position: e.target.value || null })} />
+      <PositionSelect sport={sport} value={p.position} onChange={(position) => upd({ position: position || null })} label={`Poste de ${p.name}`} className="w-44 shrink-0" />
       <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={async () => { if (confirm(`Supprimer ${p.name} ?`)) { await supabase.from("players").delete().eq("id", p.id); onChange(); } }}>
         <Trash2 className="h-4 w-4 text-destructive" />
       </Button>

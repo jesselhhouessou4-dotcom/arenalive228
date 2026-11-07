@@ -147,6 +147,50 @@ export type Database = {
           },
         ]
       }
+      match_pauses: {
+        Row: {
+          created_by: string | null
+          created_by_name: string | null
+          duration_seconds: number | null
+          id: string
+          match_id: string
+          period: number | null
+          reason: string
+          resumed_at: string | null
+          started_at: string
+        }
+        Insert: {
+          created_by?: string | null
+          created_by_name?: string | null
+          duration_seconds?: number | null
+          id?: string
+          match_id: string
+          period?: number | null
+          reason: string
+          resumed_at?: string | null
+          started_at?: string
+        }
+        Update: {
+          created_by?: string | null
+          created_by_name?: string | null
+          duration_seconds?: number | null
+          id?: string
+          match_id?: string
+          period?: number | null
+          reason?: string
+          resumed_at?: string | null
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_pauses_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           created_at: string
@@ -154,6 +198,9 @@ export type Database = {
           ended_at: string | null
           group_name: string | null
           id: string
+          is_paused: boolean
+          pause_reason: string | null
+          paused_at: string | null
           period_started_at: string | null
           phase: string
           scheduled_at: string | null
@@ -164,6 +211,7 @@ export type Database = {
           status: Database["public"]["Enums"]["match_status"]
           team_a_id: string
           team_b_id: string
+          total_paused_seconds: number
           tournament_id: string
           venue: string | null
         }
@@ -173,6 +221,9 @@ export type Database = {
           ended_at?: string | null
           group_name?: string | null
           id?: string
+          is_paused?: boolean
+          pause_reason?: string | null
+          paused_at?: string | null
           period_started_at?: string | null
           phase?: string
           scheduled_at?: string | null
@@ -183,6 +234,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["match_status"]
           team_a_id: string
           team_b_id: string
+          total_paused_seconds?: number
           tournament_id: string
           venue?: string | null
         }
@@ -192,6 +244,9 @@ export type Database = {
           ended_at?: string | null
           group_name?: string | null
           id?: string
+          is_paused?: boolean
+          pause_reason?: string | null
+          paused_at?: string | null
           period_started_at?: string | null
           phase?: string
           scheduled_at?: string | null
@@ -202,6 +257,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["match_status"]
           team_a_id?: string
           team_b_id?: string
+          total_paused_seconds?: number
           tournament_id?: string
           venue?: string | null
         }
@@ -421,6 +477,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      close_open_pause: {
+        Args: { _at: string; _match_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -429,7 +489,12 @@ export type Database = {
         Returns: boolean
       }
       is_match_scorer: { Args: { _match_id: string }; Returns: boolean }
+      pause_match: {
+        Args: { _match_id: string; _reason: string }
+        Returns: undefined
+      }
       recompute_match: { Args: { _match_id: string }; Returns: undefined }
+      resume_match: { Args: { _match_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "marqueur"

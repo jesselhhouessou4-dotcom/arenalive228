@@ -13,3 +13,4 @@
 - Keep SSR Query cache integration in the router with provider wrapping disabled, because the root already owns the QueryClientProvider.
 - Keep sport position choices in POSITIONS_BY_SPORT and reuse PositionSelect for editing; preserve legacy strings and nullable positions without rewriting stored data.
 - Keep court SVGs and pointer interactions isolated in LineupTerrain; persist percentage coordinates per match/team/sport in browser storage so court-only changes need no schema changes and remain touch-compatible.
+- Basketball half-courts use versioned browser-storage keys, normalize legacy percentages into the new board, and clamp by measured chip size; leave football rendering and storage untouched to prevent cross-sport regressions.

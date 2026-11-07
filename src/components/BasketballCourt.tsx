@@ -1,9 +1,9 @@
 import { useId } from "react";
 
-export function BasketballCourt() {
+export function BasketballCourt({ half = false }: { half?: boolean }) {
   const parquetId = useId();
   return (
-    <svg viewBox="0 0 17 30" width="100%" className="pointer-events-none block h-full w-full bg-parquet" role="img" aria-label="Terrain de basketball">
+    <svg viewBox={half ? "0 0 17 15" : "0 0 17 30"} width="100%" className={`pointer-events-none block w-full bg-parquet ${half ? "aspect-[17/15] h-auto" : "h-full"}`} role="img" aria-label={half ? "Demi-terrain de basketball" : "Terrain de basketball"}>
       <defs>
         <pattern id={parquetId} width="1.6" height="4" patternUnits="userSpaceOnUse">
           <rect width="0.8" height="4" className="fill-parquet-alt" />

@@ -79,14 +79,26 @@ function AdminTournament() {
         ) : (
           <div className="grid gap-2 sm:grid-cols-2">
             {teams.data.map((tm) => (
-              <Link key={tm.id} to="/admin/equipes/$id" params={{ id: tm.id }} className="flex items-center gap-3 rounded-2xl border bg-card p-3">
-                <TeamBadge team={tm} size={36} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold">{tm.name}</p>
-                  {tm.group_name && <p className="text-xs text-muted-foreground">Poule {tm.group_name}</p>}
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </Link>
+              <div key={tm.id} className="flex items-center gap-1 rounded-2xl border bg-card p-1.5">
+                <Link to="/admin/equipes/$id" params={{ id: tm.id }} className="flex min-w-0 flex-1 items-center gap-3 p-1.5">
+                  <TeamBadge team={tm} size={36} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{tm.name}</p>
+                    {tm.group_name && <p className="text-xs text-muted-foreground">Poule {tm.group_name}</p>}
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+                <TeamDialog
+                  tournamentId={id}
+                  team={tm}
+                  onDone={() => qc.invalidateQueries({ queryKey: ["teams", id] })}
+                  trigger={
+                    <Button variant="ghost" size="icon" aria-label={`Modifier ${tm.name}`}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  }
+                />
+              </div>
             ))}
           </div>
         )}
@@ -108,12 +120,14 @@ export function TeamDialog({ tournamentId, team, onDone, trigger }: { tournament
   const [busy, setBusy] = useState(false);
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    const name = f.name.trim();
+    if (!name) return toast.error("Le nom de l'équipe ne peut pas être vide.");
     setBusy(true);
-    const payload = { name: f.name, short_name: f.short_name || null, color: f.color, group_name: f.group_name || null, tournament_id: tournamentId };
+    const payload = { name, short_name: f.short_name || null, color: f.color, group_name: f.group_name || null, tournament_id: tournamentId };
     const res = team ? await supabase.from("teams").update(payload).eq("id", team.id) : await supabase.from("teams").insert(payload);
     setBusy(false);
     if (res.error) return toast.error(errMsg(res.error));
-    toast.success("Équipe enregistrée");
+    toast.success(team ? "Équipe modifiée" : "Équipe créée");
     setOpen(false);
     onDone();
   }

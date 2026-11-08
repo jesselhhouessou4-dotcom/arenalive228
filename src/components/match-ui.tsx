@@ -212,7 +212,7 @@ export function LineupBoard({
         <TeamBadge team={team} size={28} />
         <h3 className="font-display text-lg font-bold uppercase">{team.name}</h3>
       </div>
-      <LineupTerrain sport={sport} editable={editable} storageKey={`lineup-terrain:${mine[0]?.match_id}:${team.id}:${sport}:${Boolean(mirrored)}`}
+      <LineupTerrain sport={sport} editable={editable ?? false} storageKey={`lineup-terrain:${mine[0]?.match_id}:${team.id}:${sport}:${Boolean(mirrored)}`}
         players={rows.flatMap((row, i) => row.map((l, j) => ({
           id: l.id,
           name: l.player.name,

@@ -4,7 +4,7 @@ import { FootballPitch } from "./FootballPitch";
 import { pointerPosition, readPositions, type TerrainPosition } from "./terrain-position";
 import { clampBasketballPosition, migrateBasketballPositions } from "./basketball-position";
 
-export function LineupTerrain({ sport, storageKey, players }: { sport: string; storageKey: string; players: { id: string; name: string; position: TerrainPosition; chip: ReactNode }[] }) {
+export function LineupTerrain({ sport, storageKey, players, editable = false }: { sport: string; storageKey: string; editable?: boolean; players: { id: string; name: string; position: TerrainPosition; chip: ReactNode }[] }) {
   const terrain = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: string; pointerId: number; startX: number; startY: number; offsetX: number; offsetY: number; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
@@ -81,11 +81,12 @@ export function LineupTerrain({ sport, storageKey, players }: { sport: string; s
         const savedPoint = positions[player.id] ?? player.position;
         const point = basketball ? clampBasketballPosition(savedPoint, inset) : savedPoint;
         return (
-          <div key={player.id} data-terrain-player={player.id} className="absolute z-10 -translate-x-1/2 -translate-y-1/2 touch-none select-none cursor-grab active:cursor-grabbing active:z-20"
+          <div key={player.id} data-terrain-player={player.id} className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 ${editable ? "touch-none select-none cursor-grab active:cursor-grabbing active:z-20" : ""}`}
+            data-draggable={editable || undefined}
             style={{ left: `${point.x}%`, top: `${point.y}%` }}
             onDragStart={(e) => e.preventDefault()}
             onPointerDown={(event) => {
-              if (!event.isPrimary || event.button !== 0) return;
+              if (!editable || !event.isPrimary || event.button !== 0) return;
               const chip = event.currentTarget.getBoundingClientRect();
               suppressClick.current = false;
               drag.current = { id: player.id, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, offsetX: event.clientX - (chip.left + chip.width / 2), offsetY: event.clientY - (chip.top + chip.height / 2), moved: false };

@@ -7,6 +7,7 @@ import { EventFeed, LineupBoard, Scoreboard, TeamStatsCompare } from "@/componen
 import { PauseHistory } from "@/components/MatchPause";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Player } from "@/lib/sports";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/match/$id")({
   loader: async ({ context, params }) => {
@@ -44,6 +45,7 @@ function MatchLoadError({ error }: { error: unknown }) {
 
 function MatchPage() {
   const { id } = Route.useParams();
+  const { user, isAdmin } = useAuth();
   const match = useSuspenseQuery(matchQuery(id));
   const events = useQuery(matchEventsQuery(id));
   const lineups = useQuery(lineupsQuery(id));
@@ -60,6 +62,7 @@ function MatchPage() {
   const m = match.data;
   if (!m) return <p className="py-6 text-center text-muted-foreground">Match introuvable.</p>;
   const ev = events.data ?? [];
+  const canDrag = isAdmin || (!!user && m.scorer_id === user.id);
   const lu = (lineups.data ?? []) as Parameters<typeof LineupBoard>[0]["lineups"];
 
   return (
@@ -80,8 +83,8 @@ function MatchPage() {
             <LoadingList rows={2} />
           ) : (
             <>
-              <LineupBoard team={m.team_a} lineups={lu} events={ev} sport={m.tournament.sport_id} />
-              <LineupBoard team={m.team_b} lineups={lu} events={ev} sport={m.tournament.sport_id} />
+              <LineupBoard team={m.team_a} lineups={lu} events={ev} sport={m.tournament.sport_id} editable={canDrag} />
+              <LineupBoard team={m.team_b} lineups={lu} events={ev} sport={m.tournament.sport_id} editable={canDrag} />
             </>
           )}
         </TabsContent>

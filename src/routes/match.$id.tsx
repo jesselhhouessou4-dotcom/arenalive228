@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { lineupsQuery, matchEventsQuery, matchPlayersQuery, matchQuery, useRealtime } from "@/lib/queries";
 import { ErrorBox, LoadingList } from "@/components/common";
 import { EventFeed, LineupBoard, Scoreboard, TeamStatsCompare } from "@/components/match-ui";
+import { PauseHistory } from "@/components/MatchPause";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Player } from "@/lib/sports";
 
@@ -72,6 +73,7 @@ function MatchPage() {
         </TabsList>
         <TabsContent value="direct" className="mt-4">
           {events.error ? <ErrorBox error={events.error} /> : events.isLoading ? <LoadingList /> : <EventFeed match={m} events={ev} players={playerMap} />}
+          <div className="mt-5"><PauseHistory matchId={m.id} /></div>
         </TabsContent>
         <TabsContent value="compos" className="mt-4 space-y-8">
           {lineups.error ? <ErrorBox error={lineups.error} onRetry={() => lineups.refetch()} /> : lineups.isLoading ? (

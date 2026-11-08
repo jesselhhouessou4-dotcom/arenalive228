@@ -104,7 +104,7 @@ export const matchPlayersQuery = (teamA: string, teamB: string) =>
   });
 
 /** Abonnement temps réel : invalide les requêtes quand la table change. */
-export function useRealtime(table: "matches" | "match_events" | "lineups", filter: string | undefined, keys: unknown[][]) {
+export function useRealtime(table: "matches" | "match_events" | "lineups" | "match_pauses", filter: string | undefined, keys: unknown[][]) {
   const qc = useQueryClient();
   const keyStr = JSON.stringify(keys);
   useEffect(() => {

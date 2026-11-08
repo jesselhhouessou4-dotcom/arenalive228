@@ -3,7 +3,8 @@ import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EVENT_META, CONTROL_EVENTS, footballLine, periodLabel, type Lineup, type MatchEvent, type Player, type Team } from "@/lib/sports";
 import type { MatchWithTeams } from "@/lib/queries";
-import { LiveClock, LiveDot, PlayerAvatar, TeamBadge, formatDate } from "@/components/common";
+import { MatchClock, PauseBadge } from "@/components/MatchPause";
+import { LiveDot, PlayerAvatar, TeamBadge, formatDate } from "@/components/common";
 import { playerPosition } from "@/lib/positions";
 import { LineupTerrain } from "@/components/LineupTerrain";
 
@@ -41,7 +42,8 @@ export function Scoreboard({ match }: { match: MatchWithTeams }) {
                 <>
                   <LiveDot />
                   <span className="text-live">{periodLabel(sport, match.current_period)}</span>
-                  <LiveClock from={match.period_started_at} className="text-foreground" />
+                  <MatchClock match={match} className="text-foreground" />
+                  <PauseBadge match={match} />
                 </>
               ) : match.status === "termine" ? (
                 <span className="uppercase text-muted-foreground">Terminé</span>

@@ -8,6 +8,7 @@ import { lineupsQuery, matchEventsQuery, matchPlayersQuery, matchQuery, useRealt
 import { AdminGate, BackLink, errMsg } from "@/components/admin-ui";
 import { ErrorBox, LoadingList, elapsedMinute } from "@/components/common";
 import { EventFeed, Scoreboard } from "@/components/match-ui";
+import { PauseControls, PauseHistory } from "@/components/MatchPause";
 import { EVENT_META, excludedPlayerIds, onFieldPlayerIds, type EventType, type MatchEvent, type Player } from "@/lib/sports";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -40,6 +41,7 @@ function Live() {
   const lineups = useQuery(lineupsQuery(id));
   const players = useQuery({ ...matchPlayersQuery(match.data?.team_a_id ?? "", match.data?.team_b_id ?? ""), enabled: !!match.data });
   useRealtime("match_events", `match_id=eq.${id}`, [["match-events", id], ["match", id]]);
+  useRealtime("matches", `id=eq.${id}`, [["match", id]]);
   const [team, setTeam] = useState<"a" | "b">("a");
   const [pending, setPending] = useState<{ type: EventType; out?: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -104,9 +106,10 @@ function Live() {
     <div className="space-y-4 pb-6">
       <BackLink to="/admin">Espace admin</BackLink>
       <Scoreboard match={m} />
+      <PauseControls match={m} sport={sport} />
       <div className="grid grid-cols-3 gap-2">
         <Button className="h-12" disabled={busy || m.status !== "a_venir"} onClick={() => add("debut_match")}>Début</Button>
-        <Button variant="secondary" className="h-12" disabled={busy || m.status !== "en_cours"} onClick={() => add("changement_periode")}>
+        <Button variant="secondary" className="h-12" disabled={busy || m.status !== "en_cours"} onClick={() => confirm(sport === "basketball" ? "Terminer ce quart-temps ?" : "Terminer cette période ?") && add("changement_periode")}>
           {sport === "basketball" ? "Quart suivant" : "Mi-temps"}
         </Button>
         <Button variant="destructive" className="h-12" disabled={busy || m.status !== "en_cours"} onClick={() => confirm("Terminer le match ?") && add("fin_match")}>Fin</Button>
@@ -143,6 +146,7 @@ function Live() {
         <Undo2 className="h-5 w-5" /> Annuler la dernière action {last ? `(${EVENT_META[last.type].short})` : ""}
       </Button>
       <EventFeed match={m} events={ev} players={pmap} onDelete={del} />
+      <PauseHistory matchId={m.id} />
 
       <Sheet open={!!pending} onOpenChange={(o) => !o && setPending(null)}>
         <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">

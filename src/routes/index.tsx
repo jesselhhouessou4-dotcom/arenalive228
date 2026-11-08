@@ -73,22 +73,22 @@ function Home() {
         {tournaments.isLoading ? (
           <LoadingList rows={2} />
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {(tournaments.data ?? []).slice(0, 4).map((t) => (
               <Link
                 key={t.id}
                 to="/tournoi/$id"
                 params={{ id: t.id }}
-                className="flex items-center gap-3 rounded-2xl border bg-card p-4"
+                className="flex min-w-0 items-center gap-3 rounded-2xl border bg-card p-4"
               >
-                <span className="text-3xl">{SPORT_CONFIG[t.sport_id as SportId]?.emoji}</span>
+                <span className="shrink-0 text-3xl">{SPORT_CONFIG[t.sport_id as SportId]?.emoji}</span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold">{t.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {STATUS_LABEL[t.status]} · {formatDate(t.start_date, false)}
                   </p>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
               </Link>
             ))}
           </div>

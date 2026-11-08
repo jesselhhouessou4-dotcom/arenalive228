@@ -70,6 +70,9 @@ export const matchesQuery = (filter: { tournamentId?: string; teamId?: string; s
     queryFn: async () => {
       let q = supabase.from("matches").select(MATCH_SELECT).order("scheduled_at", { ascending: true });
       if (filter.tournamentId) q = q.eq("tournament_id", filter.tournamentId);
+      if (filter.teamId) {
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(filter.teamId)) return [];
+      }
       if (filter.teamId) q = q.or(`team_a_id.eq.${filter.teamId},team_b_id.eq.${filter.teamId}`);
       if (filter.status) q = q.eq("status", filter.status as Match["status"]);
       return unwrap(await q) as unknown as MatchWithTeams[];

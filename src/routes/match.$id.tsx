@@ -5,6 +5,7 @@ import { lineupsQuery, matchEventsQuery, matchPlayersQuery, matchQuery, useRealt
 import { ErrorBox, LoadingList } from "@/components/common";
 import { EventFeed, LineupBoard, Scoreboard, TeamStatsCompare } from "@/components/match-ui";
 import { PauseHistory } from "@/components/MatchPause";
+import { OfficialsView } from "@/components/Officials";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Player } from "@/lib/sports";
 import { useAuth } from "@/lib/auth";
@@ -77,6 +78,7 @@ function MatchPage() {
         <TabsContent value="direct" className="mt-4">
           {events.error ? <ErrorBox error={events.error} /> : events.isLoading ? <LoadingList /> : <EventFeed match={m} events={ev} players={playerMap} />}
           <div className="mt-5"><PauseHistory matchId={m.id} /></div>
+          <div className="mt-5"><OfficialsView sport={m.tournament.sport_id} officials={m.officials} teams={[m.team_a, m.team_b]} /></div>
         </TabsContent>
         <TabsContent value="compos" className="mt-4 space-y-8">
           {lineups.error ? <ErrorBox error={lineups.error} onRetry={() => lineups.refetch()} /> : lineups.isLoading ? (

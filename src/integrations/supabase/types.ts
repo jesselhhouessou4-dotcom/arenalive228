@@ -199,6 +199,7 @@ export type Database = {
           group_name: string | null
           id: string
           is_paused: boolean
+          officials: Json
           pause_reason: string | null
           paused_at: string | null
           period_started_at: string | null
@@ -222,6 +223,7 @@ export type Database = {
           group_name?: string | null
           id?: string
           is_paused?: boolean
+          officials?: Json
           pause_reason?: string | null
           paused_at?: string | null
           period_started_at?: string | null
@@ -245,6 +247,7 @@ export type Database = {
           group_name?: string | null
           id?: string
           is_paused?: boolean
+          officials?: Json
           pause_reason?: string | null
           paused_at?: string | null
           period_started_at?: string | null
@@ -374,6 +377,8 @@ export type Database = {
       }
       teams: {
         Row: {
+          assistant_coach: string | null
+          coach: string | null
           color: string
           created_at: string
           group_name: string | null
@@ -384,6 +389,8 @@ export type Database = {
           tournament_id: string
         }
         Insert: {
+          assistant_coach?: string | null
+          coach?: string | null
           color?: string
           created_at?: string
           group_name?: string | null
@@ -394,6 +401,8 @@ export type Database = {
           tournament_id: string
         }
         Update: {
+          assistant_coach?: string | null
+          coach?: string | null
           color?: string
           created_at?: string
           group_name?: string | null

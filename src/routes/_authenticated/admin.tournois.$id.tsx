@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OfficialsFields } from "@/components/Officials";
+import { cleanOfficials, type Officials } from "@/lib/officials";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/admin/tournois/$id")({
@@ -106,7 +108,7 @@ function AdminTournament() {
 
       <Section
         title="Matchs"
-        action={<MatchDialog tournamentId={id} teams={teams.data ?? []} format={tour.format} onDone={() => qc.invalidateQueries({ queryKey: ["matches"] })} />}
+        action={<MatchDialog tournamentId={id} teams={teams.data ?? []} format={tour.format} sport={tour.sport_id} onDone={() => qc.invalidateQueries({ queryKey: ["matches"] })} />}
       >
         {matches.isLoading ? <LoadingList /> : matches.data?.length ? matches.data.map((m) => <MatchCard key={m.id} match={m} admin />) : <Empty>Aucun match.</Empty>}
       </Section>
@@ -116,7 +118,7 @@ function AdminTournament() {
 
 export function TeamDialog({ tournamentId, team, onDone, trigger }: { tournamentId: string; team?: Team; onDone: () => void; trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState({ name: team?.name ?? "", short_name: team?.short_name ?? "", color: team?.color ?? "#22c55e", group_name: team?.group_name ?? "", logo_url: team?.logo_url ?? "" });
+  const [f, setF] = useState({ name: team?.name ?? "", short_name: team?.short_name ?? "", color: team?.color ?? "#22c55e", group_name: team?.group_name ?? "", logo_url: team?.logo_url ?? "", coach: team?.coach ?? "", assistant_coach: team?.assistant_coach ?? "" });
   const [busy, setBusy] = useState(false);
   async function pickLogo(file?: File) {
     if (!file) return;
@@ -135,7 +137,7 @@ export function TeamDialog({ tournamentId, team, onDone, trigger }: { tournament
     const name = f.name.trim();
     if (!name) return toast.error("Le nom de l'équipe ne peut pas être vide.");
     setBusy(true);
-    const payload = { name, short_name: f.short_name || null, color: f.color, group_name: f.group_name || null, logo_url: f.logo_url || null, tournament_id: tournamentId };
+    const payload = { name, short_name: f.short_name || null, color: f.color, group_name: f.group_name || null, logo_url: f.logo_url || null, coach: f.coach.trim() || null, assistant_coach: f.assistant_coach.trim() || null, tournament_id: tournamentId };
     const res = team ? await supabase.from("teams").update(payload).eq("id", team.id) : await supabase.from("teams").insert(payload);
     setBusy(false);
     if (res.error) return toast.error(errMsg(res.error));
@@ -188,6 +190,16 @@ export function TeamDialog({ tournamentId, team, onDone, trigger }: { tournament
             </div>
             <p className="text-xs text-muted-foreground">Sans logo, la pastille couleur et l'abréviation sont utilisées.</p>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Coach</Label>
+              <Input value={f.coach} placeholder="Facultatif" onChange={(e) => setF({ ...f, coach: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Coach adjoint</Label>
+              <Input value={f.assistant_coach} placeholder="Facultatif" onChange={(e) => setF({ ...f, assistant_coach: e.target.value })} />
+            </div>
+          </div>
           <Button type="submit" className="w-full" disabled={busy}>
             Enregistrer
           </Button>
@@ -197,8 +209,9 @@ export function TeamDialog({ tournamentId, team, onDone, trigger }: { tournament
   );
 }
 
-function MatchDialog({ tournamentId, teams, format, onDone }: { tournamentId: string; teams: Team[]; format: string; onDone: () => void }) {
+function MatchDialog({ tournamentId, teams, format, sport, onDone }: { tournamentId: string; teams: Team[]; format: string; sport: string; onDone: () => void }) {
   const [open, setOpen] = useState(false);
+  const [officials, setOfficials] = useState<Officials>({});
   const [f, setF] = useState({ team_a_id: "", team_b_id: "", scheduled_at: "", phase: format === "poules" ? "Poule" : "Demi-finale", venue: "" });
   const [busy, setBusy] = useState(false);
   async function save(e: React.FormEvent) {
@@ -216,6 +229,7 @@ function MatchDialog({ tournamentId, teams, format, onDone }: { tournamentId: st
         phase: f.phase,
         group_name: f.phase === "Poule" ? a?.group_name ?? null : null,
         venue: f.venue || null,
+        officials: cleanOfficials(sport, officials),
       })
       .select("id")
       .single();
@@ -280,6 +294,10 @@ function MatchDialog({ tournamentId, teams, format, onDone }: { tournamentId: st
             <Label>Date et heure</Label>
             <Input type="datetime-local" value={f.scheduled_at} onChange={(e) => setF({ ...f, scheduled_at: e.target.value })} />
           </div>
+          <details className="rounded-xl border p-3">
+            <summary className="cursor-pointer text-sm font-semibold">Officiels (facultatif)</summary>
+            <div className="mt-3"><OfficialsFields sport={sport} value={officials} onChange={setOfficials} /></div>
+          </details>
           <Button type="submit" className="w-full" disabled={busy}>
             Créer le match
           </Button>

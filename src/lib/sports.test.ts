@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { computeScore, computeStandings, type Match, type Team } from "./sports";
 
-const team = (id: string): Team => ({ id, name: id, tournament_id: "t", short_name: null, logo_url: null, color: "#000", group_name: "A", created_at: "" });
+const team = (id: string): Team => ({ id, name: id, tournament_id: "t", short_name: null, logo_url: null, color: "#000", group_name: "A", created_at: "", coach: null, assistant_coach: null });
 const match = (a: string, b: string, sa: number, sb: number): Match =>
   ({ id: a + b, team_a_id: a, team_b_id: b, score_a: sa, score_b: sb, status: "termine" }) as Match;
 

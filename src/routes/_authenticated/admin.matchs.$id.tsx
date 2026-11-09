@@ -10,6 +10,28 @@ import { ErrorBox, LoadingList, Section, TeamBadge } from "@/components/common";
 import { Scoreboard } from "@/components/match-ui";
 import { Button } from "@/components/ui/button";
 import { PositionSelect } from "@/components/PositionSelect";
+import { OfficialsFields } from "@/components/Officials";
+import { cleanOfficials, readOfficials } from "@/lib/officials";
+
+function OfficialsEditor({ matchId, sport, initial }: { matchId: string; sport: string; initial: unknown }) {
+  const qc = useQueryClient();
+  const [value, setValue] = useState(() => readOfficials(initial));
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    setBusy(true);
+    const { error } = await supabase.from("matches").update({ officials: cleanOfficials(sport, value) }).eq("id", matchId);
+    setBusy(false);
+    if (error) return toast.error(errMsg(error));
+    toast.success("Officiels enregistrés");
+    qc.invalidateQueries({ queryKey: ["match", matchId] });
+  }
+  return (
+    <Section title="Officiels">
+      <OfficialsFields sport={sport} value={value} onChange={setValue} />
+      <Button variant="secondary" className="w-full" disabled={busy} onClick={save}>Enregistrer les officiels</Button>
+    </Section>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/admin/matchs/$id")({
   head: () => ({ meta: [{ title: "Admin — match" }, { name: "description", content: "Composition et marqueur du match." }] }),
@@ -95,6 +117,7 @@ function AdminMatch() {
           {(scorers.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.display_name ?? s.email}</option>)}
         </select>
       </Section>
+      <OfficialsEditor matchId={id} sport={m.tournament.sport_id} initial={m.officials} />
       {[m.team_a, m.team_b].map((team) => (
         <Section key={team.id} title={<span className="flex items-center gap-2"><TeamBadge team={team} size={26} /> {team.name}</span>}>
           {(players.data ?? []).filter((p) => p.team_id === team.id).map((p) => {

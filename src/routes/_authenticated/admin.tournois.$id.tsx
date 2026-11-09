@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ChevronRight, Pencil, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { matchesQuery, teamsQuery, tournamentQuery } from "@/lib/queries";
+import { matchesQuery, teamsQuery, tournamentQuery, uploadPhoto } from "@/lib/queries";
 import { AdminGate, BackLink, errMsg } from "@/components/admin-ui";
 import { TournamentDialog } from "@/components/TournamentDialog";
 import { Empty, ErrorBox, LoadingList, MatchCard, Section, TeamBadge } from "@/components/common";
@@ -116,14 +116,26 @@ function AdminTournament() {
 
 export function TeamDialog({ tournamentId, team, onDone, trigger }: { tournamentId: string; team?: Team; onDone: () => void; trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState({ name: team?.name ?? "", short_name: team?.short_name ?? "", color: team?.color ?? "#22c55e", group_name: team?.group_name ?? "" });
+  const [f, setF] = useState({ name: team?.name ?? "", short_name: team?.short_name ?? "", color: team?.color ?? "#22c55e", group_name: team?.group_name ?? "", logo_url: team?.logo_url ?? "" });
   const [busy, setBusy] = useState(false);
+  async function pickLogo(file?: File) {
+    if (!file) return;
+    setBusy(true);
+    try {
+      const url = await uploadPhoto(file, `team-logos/${tournamentId}`);
+      setF((p) => ({ ...p, logo_url: url }));
+    } catch (e) {
+      toast.error(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  }
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const name = f.name.trim();
     if (!name) return toast.error("Le nom de l'équipe ne peut pas être vide.");
     setBusy(true);
-    const payload = { name, short_name: f.short_name || null, color: f.color, group_name: f.group_name || null, tournament_id: tournamentId };
+    const payload = { name, short_name: f.short_name || null, color: f.color, group_name: f.group_name || null, logo_url: f.logo_url || null, tournament_id: tournamentId };
     const res = team ? await supabase.from("teams").update(payload).eq("id", team.id) : await supabase.from("teams").insert(payload);
     setBusy(false);
     if (res.error) return toast.error(errMsg(res.error));
@@ -162,6 +174,19 @@ export function TeamDialog({ tournamentId, team, onDone, trigger }: { tournament
               <Label>Couleur</Label>
               <Input type="color" className="h-9 p-1" value={f.color} onChange={(e) => setF({ ...f, color: e.target.value })} />
             </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Logo (facultatif)</Label>
+            <div className="flex items-center gap-3">
+              <TeamBadge team={{ name: f.name || "?", short_name: f.short_name || null, color: f.color, logo_url: f.logo_url || null }} size={48} />
+              <Input type="file" accept="image/*" aria-label="Choisir un logo" className="min-w-0 flex-1" disabled={busy} onChange={(e) => pickLogo(e.target.files?.[0])} />
+              {f.logo_url && (
+                <Button type="button" variant="ghost" size="sm" onClick={() => setF({ ...f, logo_url: "" })}>
+                  Retirer
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Sans logo, la pastille couleur et l'abréviation sont utilisées.</p>
           </div>
           <Button type="submit" className="w-full" disabled={busy}>
             Enregistrer

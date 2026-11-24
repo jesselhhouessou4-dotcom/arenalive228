@@ -527,6 +527,20 @@ export type Database = {
         | "block"
         | "rebond"
         | "exclusion"
+        | "faute"
+        | "faute_main"
+        | "coup_franc"
+        | "corner"
+        | "touche"
+        | "penalty_accorde"
+        | "penalty_manque"
+        | "but_contre_son_camp"
+        | "faute_offensive"
+        | "faute_antisportive"
+        | "faute_disqualifiante"
+        | "faute_technique_coach"
+        | "perte_balle"
+        | "temps_mort"
       lineup_status: "titulaire" | "remplacant" | "reserve"
       match_status: "a_venir" | "en_cours" | "termine"
       tournament_format: "poules" | "elimination"
@@ -679,6 +693,20 @@ export const Constants = {
         "block",
         "rebond",
         "exclusion",
+        "faute",
+        "faute_main",
+        "coup_franc",
+        "corner",
+        "touche",
+        "penalty_accorde",
+        "penalty_manque",
+        "but_contre_son_camp",
+        "faute_offensive",
+        "faute_antisportive",
+        "faute_disqualifiante",
+        "faute_technique_coach",
+        "perte_balle",
+        "temps_mort",
       ],
       lineup_status: ["titulaire", "remplacant", "reserve"],
       match_status: ["a_venir", "en_cours", "termine"],

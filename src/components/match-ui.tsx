@@ -1,7 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { EVENT_META, CONTROL_EVENTS, footballLine, periodLabel, type Lineup, type MatchEvent, type Player, type Team } from "@/lib/sports";
+import {
+  EVENT_META,
+  CONTROL_EVENTS,
+  TEAM_FOUL_BONUS_AT,
+  footballLine,
+  periodLabel,
+  teamFoulsInPeriod,
+  type EventType,
+  type Lineup,
+  type MatchEvent,
+  type Player,
+  type Team,
+} from "@/lib/sports";
 import type { MatchWithTeams } from "@/lib/queries";
 import { MatchClock, PauseBadge } from "@/components/MatchPause";
 import { LiveDot, PlayerAvatar, TeamBadge, formatDate } from "@/components/common";
@@ -95,7 +107,13 @@ export function EventFeed({
               {onDelete && <DeleteBtn onClick={() => onDelete(e)} />}
             </li>
           );
-        const highlight = e.type === "but" || e.type === "panier_3" || e.type === "carton_rouge" || e.type === "exclusion";
+        const highlight =
+          e.type === "but" ||
+          e.type === "but_contre_son_camp" ||
+          e.type === "panier_3" ||
+          e.type === "carton_rouge" ||
+          e.type === "exclusion" ||
+          e.type === "faute_disqualifiante";
         return (
           <li
             key={e.id}
@@ -241,13 +259,16 @@ export function LineupBoard({
 
 export function TeamStatsCompare({ match, events }: { match: MatchWithTeams; events: MatchEvent[] }) {
   const sport = match.tournament.sport_id;
-  const types =
+  const types: EventType[] =
     sport === "basketball"
-      ? (["panier_3", "panier_2", "panier_1", "rebond", "passe", "steal", "block", "faute_personnelle"] as const)
-      : (["but", "passe_decisive", "carton_jaune", "carton_rouge", "hors_jeu", "remplacement"] as const);
+      ? ["panier_3", "panier_2", "panier_1", "rebond", "passe", "steal", "block", "perte_balle", "faute_personnelle", "faute_offensive", "faute_antisportive", "faute_technique", "temps_mort"]
+      : ["but", "but_contre_son_camp", "passe_decisive", "faute", "faute_main", "coup_franc", "corner", "touche", "penalty_accorde", "penalty_manque", "carton_jaune", "carton_rouge", "hors_jeu", "remplacement"];
+  // Les types sans aucun événement dans ce match ne sont pas affichés, pour garder la liste courte.
+  const visible = types.filter((t) => events.some((e) => e.type === t));
   return (
     <div className="space-y-3 rounded-2xl border bg-card p-4">
-      {types.map((t) => {
+      {sport === "basketball" && <TeamFoulsByPeriod match={match} events={events} />}
+      {visible.map((t) => {
         const a = events.filter((e) => e.type === t && e.team_id === match.team_a_id).length;
         const b = events.filter((e) => e.type === t && e.team_id === match.team_b_id).length;
         const total = a + b || 1;
@@ -266,6 +287,56 @@ export function TeamStatsCompare({ match, events }: { match: MatchWithTeams; eve
                 <div className="h-full" style={{ width: `${(b / total) * 100}%`, background: match.team_b.color }} />
               </div>
             </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Basket : fautes d'équipe du quart-temps en cours (badge BONUS dès 4 fautes), pour la console live. */
+export function TeamFoulsBadges({ match, events }: { match: MatchWithTeams; events: MatchEvent[] }) {
+  const period = match.current_period || 1;
+  return (
+    <div className="flex items-center justify-between gap-2 rounded-2xl border bg-card px-3 py-2 text-sm">
+      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Fautes d'équipe · {periodLabel("basketball", period)}</span>
+      <div className="flex gap-3">
+        {[match.team_a, match.team_b].map((t) => {
+          const n = teamFoulsInPeriod(events, t.id, period);
+          return (
+            <span key={t.id} className="flex items-center gap-1.5 font-bold tabular">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: t.color }} />
+              {n}
+              {n >= TEAM_FOUL_BONUS_AT && <span className="rounded bg-red-card px-1.5 py-0.5 text-[10px] font-extrabold uppercase text-white">Bonus</span>}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Basket : tableau des fautes d'équipe par quart-temps (les prolongations comptent avec le 4e quart-temps). */
+export function TeamFoulsByPeriod({ match, events }: { match: MatchWithTeams; events: MatchEvent[] }) {
+  const last = Math.min(Math.max(match.current_period || 1, 1), 4);
+  const periods = Array.from({ length: last }, (_, i) => i + 1);
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Fautes d'équipe par quart-temps</p>
+      {periods.map((p) => {
+        const a = teamFoulsInPeriod(events, match.team_a_id, p);
+        const b = teamFoulsInPeriod(events, match.team_b_id, p);
+        return (
+          <div key={p} className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-1.5 font-bold tabular">
+              {a}
+              {a >= TEAM_FOUL_BONUS_AT && <span className="rounded bg-red-card px-1 text-[10px] font-extrabold uppercase text-white">Bonus</span>}
+            </span>
+            <span className="text-muted-foreground">QT{p}</span>
+            <span className="flex items-center gap-1.5 font-bold tabular">
+              {b >= TEAM_FOUL_BONUS_AT && <span className="rounded bg-red-card px-1 text-[10px] font-extrabold uppercase text-white">Bonus</span>}
+              {b}
+            </span>
           </div>
         );
       })}

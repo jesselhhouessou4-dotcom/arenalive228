@@ -88,7 +88,7 @@ function AuthPage() {
         <button type="button" className="w-full text-sm text-muted-foreground" onClick={() => setMode(mode === "in" ? "up" : "in")}>
           {mode === "in" ? "Pas de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}
         </button>
-        <p className="text-center text-xs text-muted-foreground">Le premier compte créé devient automatiquement administrateur.</p>
+        <p className="text-center text-xs text-muted-foreground">Après la création du compte, un administrateur doit vous attribuer un rôle.</p>
       </form>
     </div>
   );
